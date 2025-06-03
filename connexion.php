@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (password_verify($password, $hashed_password)) {
             $_SESSION['user_id'] = $id;
-            header("Location: index.php");
+            header("Location: home.php");
             exit;
         } else {
             $error = "Mot de passe incorrect.";
