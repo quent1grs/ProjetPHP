@@ -10,35 +10,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('Connexion échouée : ' . $conn->connect_error);
     }
 
-    // Création des variables
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    // Sécurisation des données
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $password_raw = $_POST['password'];
 
-    // Vérifier si l'utilisateur existe déjà
-    $check = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
-    $check->bind_param("ss", $username, $email);
-    $check->execute();
-    $check->store_result();
-
-    if ($check->num_rows > 0) {
-        $error = "Ce nom d'utilisateur ou cet email existe déjà.";
+    // Validations
+    if (strlen($username) < 3 || strlen($username) > 20) {
+        $error = "Le nom d'utilisateur doit contenir entre 3 et 20 caractères.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "L'adresse email est invalide.";
+    } elseif (strlen($password_raw) < 1) {
+        $error = "Le mot de passe doit contenir au moins 6 caractères.";
     } else {
-        // Insérer le nouvel utilisateur
-        $stmt = $conn->prepare("INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, 'client')");
-        $stmt->bind_param("sss", $username, $password, $email);
+        // Vérifie si l'utilisateur existe déjà
+        $check = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+        $check->bind_param("ss", $username, $email);
+        $check->execute();
+        $check->store_result();
 
-        // Lance la requête à la bdd
-        if ($stmt->execute()) {
-            $success = "Compte créé <a href='connexion.php'>Connecte-toi</a>";
+        if ($check->num_rows > 0) {
+            $error = "Ce nom d'utilisateur ou cet email existe déjà.";
         } else {
-            $error = "Erreur lors de l'inscription.";
+            // Hasher le mot de passe
+            $password = password_hash($password_raw, PASSWORD_BCRYPT);
+
+            // Insère le nouvel utilisateur
+            $stmt = $conn->prepare("INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, 'client')");
+            $stmt->bind_param("sss", $username, $password, $email);
+
+            if ($stmt->execute()) {
+                // Redirection possible après inscription :
+                // header("Location: connexion.php");
+                // exit();
+
+                $success = "Compte créé avec succès ! <a href='connexion.php'>Connecte-toi ici</a>";
+            } else {
+                $error = "Erreur lors de l'inscription.";
+            }
+
+            $stmt->close();
         }
 
-        $stmt->close();
+        $check->close();
     }
 
-    $check->close();
     $conn->close();
 }
 ?>
@@ -46,55 +62,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <meta charset="UTF-8">
     <title>Inscription</title>
-</head>
-<body>
-
-    <h1>Enregistre-toi</h1>
-
-    <?php if (!empty($error)): ?>
-        <div style="color:red;"><?= $error ?></div>
-    <?php endif; ?>
-
-    <?php if (!empty($success)): ?>
-        <div style="color:green;"><?= $success ?></div>
-    <?php endif; ?>
-
-    <form method="POST">
-        <div>Nom d'utilisateur :</div>
-        <input type="text" name="username" required>
-
-        <div>Email :</div>
-        <input type="email" name="email" required>
-
-        <div>Mot de passe :</div>
-        <input type="password" name="password" required>
-
-        <br><br>
-        <button type="submit" href="home.php">S'inscrire</button>
-    </form>
-
-    <div>Déjà inscrit ?</div>
-    <a href="connexion.php">Connecte-toi</a>
-
     <style>
         body {
-            background: red;
+            background: #e63946;
             color: white;
             font-family: Arial, sans-serif;
-        }
-
-        input, button {
-            margin: 5px 0;
-            padding: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         form {
             background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
+            padding: 20px;
+            border-radius: 10px;
+            width: 320px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
             border-radius: 5px;
-            width: 300px;
+            border: none;
+        }
+
+        button {
+            background-color: #1d3557;
+            color: white;
+            cursor: pointer;
+        }
+
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            background-color: rgba(255, 0, 0, 0.2);
+        }
+
+        .success {
+            background-color: rgba(0, 255, 0, 0.2);
+        }
+
+        a {
+            color: #f1faee;
+        }
+
+        .bottom-link {
+            margin-top: 10px;
+            text-align: center;
         }
     </style>
+</head>
+<body>
+
+    <form method="POST">
+        <h2>Créer un compte</h2>
+
+        <?php if (!empty($error)): ?>
+            <div class="message error"><?= $error ?></div>
+        <?php endif; ?>
+
+        <?php if (!empty($success)): ?>
+            <div class="message success"><?= $success ?></div>
+        <?php endif; ?>
+
+        <label>Nom d'utilisateur :</label>
+        <input type="text" name="username" required>
+
+        <label>Email :</label>
+        <input type="email" name="email" required>
+
+        <label>Mot de passe :</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">S'inscrire</button>
+
+        <div class="bottom-link">
+            Déjà inscrit ? <a href="connexion.php">Connecte-toi</a>
+        </div>
+    </form>
+
 </body>
 </html>
