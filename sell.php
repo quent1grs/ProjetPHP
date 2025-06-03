@@ -18,23 +18,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $description = trim($_POST['description']);
     $price = floatval($_POST['price']);
-    $publish_date = $_POST['publish_date'];
-    $image_link = trim($_POST['image_link']);
+    $publish_date = date('Y-m-d'); // date actuelle
     $author_id = $_SESSION['user_id'];
 
-    if ($name && $description && $price > 0 && $publish_date && $image_link) {
-        $stmt = $conn->prepare("INSERT INTO articles (nom, description, prix, date_publication, auteur_id, image_url) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssdsss", $name, $description, $price, $publish_date, $author_id, $image_link);
+    // Vérifie que l'image est envoyée
+    if ($name && $description && $price > 0 && isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = 'uploads/';
+        $imageTmpName = $_FILES['image_file']['tmp_name'];
+        $imageName = uniqid() . '_' . basename($_FILES['image_file']['name']);
+        $imagePath = $uploadDir . $imageName;
 
-        if ($stmt->execute()) {
-            $message = "Article ajouté avec succès.";
+        // Déplace l'image
+        if (move_uploaded_file($imageTmpName, $imagePath)) {
+            $stmt = $conn->prepare("INSERT INTO articles (nom, description, prix, date_publication, auteur_id, image_url) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssdsss", $name, $description, $price, $publish_date, $author_id, $imagePath);
+
+            if ($stmt->execute()) {
+                $message = "Article ajouté avec succès.";
+            } else {
+                $message = "Erreur lors de l'ajout de l'article : " . $stmt->error;
+            }
         } else {
-            $message = "Erreur lors de l'ajout de l'article : " . $stmt->error;
+            $message = "Erreur lors du téléchargement de l'image.";
         }
     } else {
-        $message = "Veuillez remplir tous les champs correctement.";
+        $message = "Veuillez remplir tous les champs correctement et choisir une image.";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -51,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p style="color:green"><?= htmlspecialchars($message) ?></p>
     <?php endif; ?>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         <label for="name">Nom de l'article :</label><br>
         <input type="text" name="name" id="name" required><br><br>
 
@@ -61,14 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="price">Prix (€) :</label><br>
         <input type="number" name="price" id="price" step="0.01" min="0" required><br><br>
 
-        <label for="publish_date">Date de publication :</label><br>
-        <input type="date" name="publish_date" id="publish_date" required><br><br>
+        <!-- Date supprimée -->
 
-        <label for="image_link">Lien de l'image :</label><br>
-        <input type="text" name="image_link" id="image_link" required><br><br>
+        <label for="image_file">Image du produit :</label><br>
+        <input type="file" name="image_file" id="image_file" accept="image/*" required><br><br>
 
         <button type="submit">Ajouter l'article</button>
     </form>
+
 
     <p><a href="home.php">← Retour à l'accueil</a></p>
 </body>

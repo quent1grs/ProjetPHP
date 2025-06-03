@@ -65,6 +65,8 @@ $conn->close();
     <title>Validation de commande</title>
 </head>
 <body>
+    <?php include 'header.php'; ?>
+
     <h1>Validation de la commande</h1>
 
     <?php if (!empty($message)) echo "<p style='color: red;'>$message</p>"; ?>
