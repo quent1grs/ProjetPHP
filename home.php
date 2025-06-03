@@ -26,6 +26,7 @@ $result = $conn->query($sql);
 <body>
     <?php include 'header.php'; ?>
     <h1>Bienvenue sur notre boutique en ligne</h1>
+    <a href="sell.php">Mettre en vente un produit</a>
     <p>Nous sommes le <?php echo date("d/m/Y"); ?></p>
 
     <h2>Articles en vente :</h2>
