@@ -74,15 +74,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
     }
     if (!empty($_POST['add_balance'])) {
         $amount = floatval($_POST['add_balance']);
-        $stmt = $pdo->prepare("UPDATE User SET balance = balance + ? WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE Users SET solde = solde + ? WHERE id = ?");
         $stmt->execute([$amount, $userId]);
         echo "Solde mis à jour.<br>";
     }
-    header("Location: account.php"); // Rafraîchir pour éviter les resoumissions
+    header("Location: compte.php"); // Rafraîchir pour éviter les resoumissions
     exit;
 }
 ?>
-
+<?php include 'header.php'; ?>
 <h1>Compte de <?= htmlspecialchars($user['username']) ?></h1>
 <p>Email : <?= htmlspecialchars($user['email']) ?></p>
 <p>Solde : <?= number_format($user['solde'], 2) ?> €</p>

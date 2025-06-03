@@ -10,20 +10,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('Connexion échouée : ' . $conn->connect_error);
     }
 
-    // Sécurisation des données
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password_raw = $_POST['password'];
 
-    // Validations
+    // Vérification image
+    $profilePicturePath = 'images/default.png'; // chemin par défaut
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = 'uploads/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir);
+
+        $filename = basename($_FILES['profile_picture']['name']);
+        $targetPath = $uploadDir . uniqid() . '_' . $filename;
+
+        if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetPath)) {
+            $profilePicturePath = $targetPath;
+        } else {
+            $error = "Erreur lors du téléchargement de l'image.";
+        }
+    }
+
     if (strlen($username) < 3 || strlen($username) > 20) {
         $error = "Le nom d'utilisateur doit contenir entre 3 et 20 caractères.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "L'adresse email est invalide.";
-    } elseif (strlen($password_raw) < 1) {
+    } elseif (strlen($password_raw) < 6) {
         $error = "Le mot de passe doit contenir au moins 6 caractères.";
     } else {
-        // Vérifie si l'utilisateur existe déjà
         $check = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
         $check->bind_param("ss", $username, $email);
         $check->execute();
@@ -32,18 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($check->num_rows > 0) {
             $error = "Ce nom d'utilisateur ou cet email existe déjà.";
         } else {
-            // Hasher le mot de passe
             $password = password_hash($password_raw, PASSWORD_BCRYPT);
 
-            // Insère le nouvel utilisateur
-            $stmt = $conn->prepare("INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, 'client')");
-            $stmt->bind_param("sss", $username, $password, $email);
+            $stmt = $conn->prepare("INSERT INTO users (username, password, email, role, photo_profil) VALUES (?, ?, ?, 'client', ?)");
+            $stmt->bind_param("ssss", $username, $password, $email, $profilePicturePath);
 
             if ($stmt->execute()) {
-                // Redirection possible après inscription :
-                // header("Location: connexion.php");
-                // exit();
-
                 $success = "Compte créé avec succès ! <a href='connexion.php'>Connecte-toi ici</a>";
             } else {
                 $error = "Erreur lors de l'inscription.";
@@ -57,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $conn->close();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -123,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         <h2>Créer un compte</h2>
 
         <?php if (!empty($error)): ?>
@@ -133,6 +141,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (!empty($success)): ?>
             <div class="message success"><?= $success ?></div>
         <?php endif; ?>
+        <label>Photo de profil :</label>
+        <input type="file" name="profile_picture" accept="image/*" required>
+
 
         <label>Nom d'utilisateur :</label>
         <input type="text" name="username" required>
@@ -143,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label>Mot de passe :</label>
         <input type="password" name="password" required>
 
-        <button type="submit">S'inscrire</button>
+        <button type="submit" href="home.php">S'inscrire</button>
 
         <div class="bottom-link">
             Déjà inscrit ? <a href="connexion.php">Connecte-toi</a>

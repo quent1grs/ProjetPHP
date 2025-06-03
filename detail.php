@@ -42,6 +42,7 @@ $conn->close();
     <title><?= htmlspecialchars($article['nom']) ?></title>
 </head>
 <body>
+    <?php include 'header.php'; ?>
     <h1><?= htmlspecialchars($article['nom']) ?></h1>
     <img src="<?= htmlspecialchars($article['image_url']) ?>" alt="<?= htmlspecialchars($article['nom']) ?>" width="200">
     <p><strong>Description :</strong> <?= nl2br(htmlspecialchars($article['description'])) ?></p>
