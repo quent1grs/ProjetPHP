@@ -6,6 +6,7 @@ $host = 'localhost';
 $user = 'root';
 $password = '';
 $dbname = 'ecommerce';
+
 $conn = new mysqli($host, $user, $password, $dbname);
 if ($conn->connect_error) {
     die("Erreur de connexion : " . $conn->connect_error);
@@ -55,6 +56,15 @@ $conn->close();
     <?php else: ?>
         <p><a href="connexion.php">Connectez-vous</a> pour ajouter au panier.</p>
     <?php endif; ?>
+
+    <?php if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $article['auteur_id'] || (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'))): ?>
+        <form action="edit.php" method="POST">
+            <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
+            <button type="submit">Modifier l’annonce</button>
+        </form>
+    <?php endif; ?>
+
+
 
     <a href="home.php">← Retour</a>
 
