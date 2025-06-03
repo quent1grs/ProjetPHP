@@ -1,8 +1,7 @@
 <?php
 session_start();
-require 'db.php'; // Connexion à la base de données
+require 'db.php'; 
 
-// Récupération de l'ID utilisateur via GET ou session
 $userId = isset($_GET['id']) ? intval($_GET['id']) : ($_SESSION['user_id'] ?? null);
 $isOwnAccount = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $userId;
 
@@ -11,7 +10,6 @@ if (!$userId) {
     exit;
 }
 
-// Récupération des infos utilisateur
 $stmt = $pdo->prepare("SELECT * FROM Users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
@@ -21,17 +19,14 @@ if (!$user) {
     exit;
 }
 
-// Articles publiés
 $stmt = $pdo->prepare("SELECT * FROM Articles WHERE auteur_id = ?");
 $stmt->execute([$userId]);
 $articles = $stmt->fetchAll();
 
-// Articles achetés si compte propre
 $purchasedArticles = [];
 $invoices = [];
 
 if ($isOwnAccount) {
-    // Récupérer les articles achetés via la table Cart
     $stmt = $pdo->prepare("
         SELECT Articles.* FROM Articles
         JOIN Cart ON Cart.article_id = Articles.id
@@ -40,15 +35,12 @@ if ($isOwnAccount) {
     $stmt->execute([$userId]);
     $purchasedArticles = $stmt->fetchAll();
 
-    // Récupérer les factures
     $stmt = $pdo->prepare("SELECT * FROM Invoice WHERE user_id = ?");
     $stmt->execute([$userId]);
     $invoices = $stmt->fetchAll();
 }
 
-// Traitement du formulaire de mise à jour
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
-    // Suppression du compte
     if (isset($_POST['delete_account'])) {
         $stmt = $pdo->prepare("SELECT id FROM Articles WHERE auteur_id = ?");
         $stmt->execute([$userId]);
@@ -77,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
         exit;
     }
 
-    // Mise à jour des infos utilisateur
     if (!empty($_POST['email'])) {
         $stmt = $pdo->prepare("UPDATE Users SET email = ? WHERE id = ?");
         $stmt->execute([$_POST['email'], $userId]);
@@ -96,7 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
         echo "Solde mis à jour.<br>";
     }
 
-    // Mise à jour de la photo de profil
     if (isset($_FILES['photo_profil']) && $_FILES['photo_profil']['error'] === UPLOAD_ERR_OK) {
         $fileTmp = $_FILES['photo_profil']['tmp_name'];
         $fileName = basename($_FILES['photo_profil']['name']);
@@ -104,14 +94,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
         $allowed = ['jpg', 'jpeg', 'png', 'gif'];
 
         if (in_array($fileExt, $allowed)) {
-            // Créer le dossier uploads si non existant
             if (!is_dir('uploads')) {
                 mkdir('uploads', 0777, true);
             }
 
             $newFileName = 'uploads/photo_' . $userId . '_' . time() . '.' . $fileExt;
             if (move_uploaded_file($fileTmp, $newFileName)) {
-                // Mettre à jour la BDD
                 $stmt = $pdo->prepare("UPDATE Users SET photo_profil = ? WHERE id = ?");
                 $stmt->execute([$newFileName, $userId]);
                 echo "Photo de profil mise à jour.<br>";
@@ -123,7 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
         }
     }
 
-    // Rechargement pour afficher la nouvelle photo
     header("Location: compte.php");
     exit;
 }
@@ -136,7 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
 <p>Solde : <?= number_format($user['solde'], 2) ?> €</p>
 
 <?php if ($isOwnAccount): ?>
-    <!-- Formulaire de mise à jour de la photo -->
     <form method="POST" enctype="multipart/form-data" id="formPhoto">
         <input type="file" name="photo_profil" id="photoInput" style="display:none;" accept="image/*" onchange="document.getElementById('formPhoto').submit();">
         <?php if (!empty($user['photo_profil'])): ?>

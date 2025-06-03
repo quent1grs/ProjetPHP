@@ -6,7 +6,6 @@ if (!isset($_SESSION['user_id'])) header("Location: connexion.php");
 
 $user_id = $_SESSION['user_id'];
 
-// Récupération des articles du panier
 $sql = "SELECT a.*, c.quantite FROM cart c 
         JOIN articles a ON c.article_id = a.id 
         WHERE c.user_id = ?";
@@ -22,7 +21,6 @@ while ($row = $result->fetch_assoc()) {
     $total += $row['prix'] * $row['quantite'];
 }
 
-// Gestion formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmer'])) {
     $adresse = $_POST['adresse'];
     $ville = $_POST['ville'];
@@ -32,21 +30,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmer'])) {
     $solde = $res->fetch_assoc()['solde'];
 
     if ($solde >= $total) {
-// Insérer la facture
 $stmt = $conn->prepare("INSERT INTO invoice (user_id, date_transaction, montant, adresse_facturation, ville_facturation, code_postal) VALUES (?, CURDATE(), ?, ?, ?, ?)");
 $stmt->bind_param("idsss", $user_id, $total, $adresse, $ville, $cp);
 $stmt->execute();
-$invoice_id = $conn->insert_id; // ← récupère l'ID de la facture
+$invoice_id = $conn->insert_id;
 
-// Déduire le solde
 $stmt = $conn->prepare("UPDATE users SET solde = solde - ? WHERE id = ?");
 $stmt->bind_param("di", $total, $user_id);
 $stmt->execute();
 
-// Vider le panier
 $conn->query("DELETE FROM cart WHERE user_id = $user_id");
 
-// Redirection vers la facture
 header("Location: facture.php?id=$invoice_id");
 exit;
 

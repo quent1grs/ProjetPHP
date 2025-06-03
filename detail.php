@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Connexion à la base de données
 $host = 'localhost';
 $user = 'root';
 $password = '';
@@ -12,7 +11,6 @@ if ($conn->connect_error) {
     die("Erreur de connexion : " . $conn->connect_error);
 }
 
-// Vérifie qu'un ID a été passé
 if (!isset($_GET['id'])) {
     die("Aucun article spécifié.");
 }
@@ -50,7 +48,6 @@ $conn->close();
     <p><strong>Vendu par :</strong> <?= htmlspecialchars($article['username']) ?></p>
     <p><strong>Date de publication :</strong> <?= htmlspecialchars($article['date_publication']) ?></p>
 
-    <!-- Bouton AJAX -->
     <?php if (isset($_SESSION['user_id'])): ?>
         <button onclick="ajouterAuPanier(<?= $article['id'] ?>)">Ajouter au panier</button>
         <div id="message" style="color: green;"></div>

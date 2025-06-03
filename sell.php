@@ -5,7 +5,6 @@ if ($conn->connect_error) {
     die("Erreur de connexion : " . $conn->connect_error);
 }
 
-// Vérifie que l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
     header("Location: connexion.php");
     exit;
@@ -13,7 +12,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $message = "";
 
-// Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $description = trim($_POST['description']);
@@ -21,14 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $publish_date = date('Y-m-d'); // date actuelle
     $author_id = $_SESSION['user_id'];
 
-    // Vérifie que l'image est envoyée
     if ($name && $description && $price > 0 && isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = 'uploads/';
         $imageTmpName = $_FILES['image_file']['tmp_name'];
         $imageName = uniqid() . '_' . basename($_FILES['image_file']['name']);
         $imagePath = $uploadDir . $imageName;
 
-        // Déplace l'image
         if (move_uploaded_file($imageTmpName, $imagePath)) {
             $stmt = $conn->prepare("INSERT INTO articles (nom, description, prix, date_publication, auteur_id, image_url) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("ssdsss", $name, $description, $price, $publish_date, $author_id, $imagePath);
@@ -72,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="price">Prix (€) :</label><br>
         <input type="number" name="price" id="price" step="0.01" min="0" required><br><br>
 
-        <!-- Date supprimée -->
 
         <label for="image_file">Image du produit :</label><br>
         <input type="file" name="image_file" id="image_file" accept="image/*" required><br><br>
