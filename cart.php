@@ -17,7 +17,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Mettre à jour les quantités si besoin
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update'])) {
         foreach ($_POST['quantite'] as $article_id => $qte) {
@@ -36,11 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_POST['commander'])) {
-        // On récupère le solde de l'utilisateur
         $res = $conn->query("SELECT solde FROM users WHERE id = $user_id");
         $solde = $res->fetch_assoc()['solde'];
 
-        // Récupération des articles du panier
         $sql = "SELECT a.id, a.prix, c.quantite FROM cart c 
                 JOIN articles a ON c.article_id = a.id 
                 WHERE c.user_id = $user_id";
@@ -54,18 +51,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($solde >= $total) {
-            // Créer une facture
             $stmt = $conn->prepare("INSERT INTO invoice (user_id, date_transaction, montant, adresse_facturation, ville_facturation, code_postal) VALUES (?, CURDATE(), ?, 'Adresse', 'Ville', '00000')");
             $stmt->bind_param("id", $user_id, $total);
             $stmt->execute();
             $invoice_id = $conn->insert_id;
 
-            // Déduire le solde
             $stmt = $conn->prepare("UPDATE users SET solde = solde - ? WHERE id = ?");
             $stmt->bind_param("di", $total, $user_id);
             $stmt->execute();
 
-            // Vider le panier
             $conn->query("DELETE FROM cart WHERE user_id = $user_id");
 
             $message = "Commande effectuée avec succès ! <a href='facture.php?id=$invoice_id' target='_blank'>Télécharger la facture</a>";
@@ -75,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Vérifie si la colonne quantite existe déjà
 $colCheck = $conn->query("SHOW COLUMNS FROM cart LIKE 'quantite'");
 if ($colCheck->num_rows == 0) {
     $conn->query("ALTER TABLE cart ADD COLUMN quantite INT DEFAULT 1");
@@ -94,7 +87,6 @@ while ($row = $result->fetch_assoc()) {
     $total += $row['prix'] * $row['quantite'];
 }
 
-// Récupérer solde
 $res = $conn->query("SELECT solde FROM users WHERE id = $user_id");
 $solde = $res->fetch_assoc()['solde'];
 

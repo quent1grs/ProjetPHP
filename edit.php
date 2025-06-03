@@ -10,14 +10,12 @@ if ($conn->connect_error) {
     die("Erreur de connexion : " . $conn->connect_error);
 }
 
-// Récupérer l'ID de l'article envoyé en POST depuis detail.php
 if (!isset($_POST['article_id'])) {
     die("Article non spécifié.");
 }
 
 $article_id = intval($_POST['article_id']);
 
-// Vérifier que l'utilisateur a le droit de modifier cet article
 $sql = "SELECT * FROM articles WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $article_id);
@@ -34,7 +32,6 @@ if ($_SESSION['user_id'] != $article['auteur_id'] && $_SESSION['role'] !== 'admi
     die("Vous n'avez pas l'autorisation de modifier cet article.");
 }
 
-// Traitement de la modification ou suppression
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'supprimer') {
         $stmt = $conn->prepare("DELETE FROM articles WHERE id = ?");

@@ -14,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password_raw = $_POST['password'];
 
-    // Vérification image
     $profilePicturePath = 'images/default.png'; // chemin par défaut
     if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = 'uploads/';

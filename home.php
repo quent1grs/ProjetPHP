@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Connexion à la base de données
 $host = 'localhost';
 $user = 'root';
 $password = '';
@@ -12,7 +11,6 @@ if ($conn->connect_error) {
     die("Connexion échouée : " . $conn->connect_error);
 }
 
-// Récupération des articles, les plus récents en premier
 $sql = "SELECT * FROM articles ORDER BY date_publication DESC";
 $result = $conn->query($sql);
 ?>

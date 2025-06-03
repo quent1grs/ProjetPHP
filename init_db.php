@@ -1,18 +1,15 @@
 <?php
 
-// Fichier d'initialisation de la bdd
 $host = 'localhost';
 $user = 'root';
 $password = '';
 $dbname = 'ecommerce';
 
-// Connexion au serveur MySQL
 $conn = new mysqli($host, $user, $password);
 if ($conn->connect_error) {
     die("Connexion échouée : " . $conn->connect_error);
 }
 
-// Création de la base de données
 $sql = "CREATE DATABASE IF NOT EXISTS $dbname";
 if ($conn->query($sql) === TRUE) {
     echo "Base de données créée ou déjà existante.<br>";
@@ -22,7 +19,6 @@ if ($conn->query($sql) === TRUE) {
 
 $conn->select_db($dbname);
 
-// Création de la table Users
 $sql = "CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
@@ -35,7 +31,6 @@ $sql = "CREATE TABLE IF NOT EXISTS users (
 )";
 $conn->query($sql);
 
-// Création de la table Articles
 $sql = "CREATE TABLE IF NOT EXISTS articles (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100),
@@ -48,7 +43,6 @@ $sql = "CREATE TABLE IF NOT EXISTS articles (
 )";
 $conn->query($sql);
 
-// Création de la table Carts
 $sql = "CREATE TABLE IF NOT EXISTS cart (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
@@ -58,7 +52,6 @@ $sql = "CREATE TABLE IF NOT EXISTS cart (
 )";
 $conn->query($sql);
 
-// Création de la table Stock
 $sql = "CREATE TABLE IF NOT EXISTS stock (
     id INT AUTO_INCREMENT PRIMARY KEY,
     article_id INT,
@@ -67,7 +60,6 @@ $sql = "CREATE TABLE IF NOT EXISTS stock (
 )";
 $conn->query($sql);
 
-// Création de la table Invoices
 $sql = "CREATE TABLE IF NOT EXISTS invoice (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
@@ -87,10 +79,6 @@ $sql = "INSERT INTO users (username, password, email, solde, photo_profil, role)
     ('admin', '$hashed_password', 'admin@example.com', 100.00, './uploads/Capture d’écran 2025-06-03 135322.png', 'admin')";
 $conn->query($sql);
 $user_id = $conn->insert_id;
-<<<<<<< HEAD
-
-=======
->>>>>>> admin
 // Insertion d'un utilisateur
 $hashed_password = password_hash("motdepasse123", PASSWORD_BCRYPT);
 $sql = "INSERT INTO users (username, password, email, solde, photo_profil, role) VALUES 
@@ -117,7 +105,7 @@ $sql = "INSERT INTO users (username, password, email, solde, photo_profil, role)
 $conn->query($sql);
 $user_id = $conn->insert_id;
 
-// Insertion d’un article
+
 $sql = "INSERT INTO articles (nom, description, prix, date_publication, auteur_id, image_url) VALUES 
     ('Carte de Jean-Yves', 'une carte hein', 49.99, CURDATE(), $user_id, 'https://img.freepik.com/vecteurs-libre/credit-carte-debit-mockup_1017-6276.jpg?ga=GA1.1.332348959.1748942902&semt=ais_hybrid&w=740')";
 $conn->query($sql);
@@ -142,15 +130,15 @@ $sql = "INSERT INTO articles (nom, description, prix, date_publication, auteur_i
     ('Carte de Pre Malone', 'Devines', 49.99, CURDATE(), $user_id, 'https://img.freepik.com/vecteurs-libre/carte-credit-monochrome-realiste_52683-74365.jpg?ga=GA1.1.332348959.1748942902&semt=ais_hybrid&w=740')";
 $conn->query($sql);
 
-// Insertion dans le panier
+
 $sql = "INSERT INTO cart (user_id, article_id) VALUES ($user_id, $article_id)";
 $conn->query($sql);
 
-// Insertion dans le stock
+
 $sql = "INSERT INTO stock (article_id, quantite) VALUES ($article_id, 20)";
 $conn->query($sql);
 
-// Insertion d'une facture
+
 $sql = "INSERT INTO invoice (user_id, date_transaction, montant, adresse_facturation, ville_facturation, code_postal) VALUES 
     ($user_id, CURDATE(), 49.99, '123 Rue de Paris', 'Paris', '75001')";
 $conn->query($sql);
