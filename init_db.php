@@ -87,7 +87,10 @@ $sql = "INSERT INTO users (username, password, email, solde, photo_profil, role)
     ('admin', '$hashed_password', 'admin@example.com', 100.00, './uploads/Capture d’écran 2025-06-03 135322.png', 'admin')";
 $conn->query($sql);
 $user_id = $conn->insert_id;
+<<<<<<< HEAD
 
+=======
+>>>>>>> admin
 // Insertion d'un utilisateur
 $hashed_password = password_hash("motdepasse123", PASSWORD_BCRYPT);
 $sql = "INSERT INTO users (username, password, email, solde, photo_profil, role) VALUES 
