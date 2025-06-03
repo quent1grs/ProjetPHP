@@ -37,6 +37,7 @@ $conn->close();
     <title>Facture #<?= $facture['id'] ?></title>
 </head>
 <body>
+    <?php include 'header.php'; ?>
     <h1>Facture #<?= $facture['id'] ?></h1>
     <p>Date : <?= $facture['date_transaction'] ?></p>
     <p>Client ID : <?= $facture['user_id'] ?></p>
