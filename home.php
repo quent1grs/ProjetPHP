@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // Connexion à la base de données
 $host = 'localhost';
 $user = 'root';
@@ -27,6 +29,9 @@ $result = $conn->query($sql);
 
     <a href="connexion.php">Connexion</a> | 
     <a href="register.php">Enregistrement</a>
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <a href="compte.php">Voir profil</a>
+    <?php endif; ?>
 
     <h2>Articles en vente :</h2>
     <?php if ($result->num_rows > 0): ?>
