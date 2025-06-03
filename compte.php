@@ -47,6 +47,20 @@ if ($isOwnAccount) {
 
 // Traitement du formulaire de mise à jour
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
+    if (isset($_POST['delete_account'])) {
+    // Supprimer d'abord les articles de l'utilisateur
+    $stmt = $pdo->prepare("DELETE FROM Articles WHERE auteur_id = ?");
+    $stmt->execute([$userId]);
+
+    // Ensuite, supprimer le compte utilisateur
+    $stmt = $pdo->prepare("DELETE FROM Users WHERE id = ?");
+    $stmt->execute([$userId]);
+
+    session_destroy(); // Déconnexion
+    header("Location: home.php");
+    exit;
+    }
+
     if (!empty($_POST['email'])) {
         $stmt = $pdo->prepare("UPDATE User SET email = ? WHERE id = ?");
         $stmt->execute([$_POST['email'], $userId]);
@@ -60,11 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
     }
     if (!empty($_POST['add_balance'])) {
         $amount = floatval($_POST['add_balance']);
-        $stmt = $pdo->prepare("UPDATE User SET balance = balance + ? WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE Users SET solde = solde + ? WHERE id = ?");
         $stmt->execute([$amount, $userId]);
         echo "Solde mis à jour.<br>";
     }
-    header("Location: account.php"); // Rafraîchir pour éviter les resoumissions
+    header("Location: compte.php"); // Rafraîchir pour éviter les resoumissions
     exit;
 }
 ?>
@@ -98,9 +112,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
 
     <h2>Modifier vos informations</h2>
     <form method="POST">
-        <label>Nouvel email : <input type="email" name="email"></label><br>
-        <label>Nouveau mot de passe : <input type="password" name="password"></label><br>
-        <label>Ajouter au solde (€) : <input type="number" step="0.01" name="add_balance"></label><br>
-        <button type="submit">Mettre à jour</button>
+    <label>Nouvel email : <input type="email" name="email"></label><br>
+    <label>Nouveau mot de passe : <input type="password" name="password"></label><br>
+    <label>Ajouter au solde (€) : <input type="number" step="0.01" name="add_balance"></label><br>
+    <button type="submit">Mettre à jour</button>
     </form>
+
+    <!-- Formulaire de suppression -->
+    <form method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.');">
+        <input type="hidden" name="delete_account" value="1">
+        <button type="submit" style="margin-top:10px; color: red;">Supprimer le compte</button>
+    </form>
+
 <?php endif; ?>
