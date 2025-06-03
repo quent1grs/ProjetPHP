@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Ajouter un article</title>
 </head>
 <body>
+    <?php include 'header.php'; ?>
     <h1>Ajouter un nouvel article</h1>
 
     <?php if ($message): ?>

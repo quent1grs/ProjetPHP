@@ -5,6 +5,8 @@
     <nav>
         <a href="home.php" style="margin-right:15px;">🏠 Home</a>
         <a href="cart.php" style="margin-right:15px;">🛒 Panier</a>
+        <a href="sell.php">Mettre en vente un produit</a>
+
     </nav>
 
     <nav>
