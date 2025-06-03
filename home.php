@@ -24,16 +24,9 @@ $result = $conn->query($sql);
     <title>Accueil - Boutique</title>
 </head>
 <body>
+    <?php include 'header.php'; ?>
     <h1>Bienvenue sur notre boutique en ligne</h1>
     <p>Nous sommes le <?php echo date("d/m/Y"); ?></p>
-
-    <?php if (isset($_SESSION['user_id'])): ?>
-        <a href="compte.php">Voir profil</a> | 
-        <a href="deconnexion.php">Déconnexion</a>
-    <?php else: ?>
-        <a href="connexion.php">Connexion</a> | 
-        <a href="register.php">Enregistrement</a>
-    <?php endif; ?>
 
     <h2>Articles en vente :</h2>
     <?php if ($result->num_rows > 0): ?>

@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <title>Modifier l'article</title>
 </head>
 <body>
+    <?php include 'header.php'; ?>
     <h1>Modifier l'article</h1>
     <form method="POST">
         <input type="hidden" name="article_id" value="<?= $article['id'] ?>">

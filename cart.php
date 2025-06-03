@@ -107,6 +107,7 @@ $conn->close();
     <title>Mon Panier</title>
 </head>
 <body>
+    <?php include 'header.php'; ?>
     <h1>Mon Panier</h1>
 
     <?php if (isset($message)) echo "<p style='color: red;'>$message</p>"; ?>

@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
     exit;
 }
 ?>
-
+<?php include 'header.php'; ?>
 <h1>Compte de <?= htmlspecialchars($user['username']) ?></h1>
 <p>Email : <?= htmlspecialchars($user['email']) ?></p>
 <p>Solde : <?= number_format($user['solde'], 2) ?> €</p>
