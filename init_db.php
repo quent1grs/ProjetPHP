@@ -73,13 +73,13 @@ $sql = "CREATE TABLE IF NOT EXISTS invoice (
 $conn->query($sql);
 
 
+// Ajout du compte admin
 $hashed_password = password_hash("admin", PASSWORD_BCRYPT);
 $sql = "INSERT INTO users (username, password, email, solde, photo_profil, role) VALUES 
     ('admin', '$hashed_password', 'admin@example.com', 100.00, './uploads/Capture d’écran 2025-06-03 135322.png', 'admin')";
 $conn->query($sql);
 $user_id = $conn->insert_id;
-
-
+// Insertion d'un utilisateur
 $hashed_password = password_hash("motdepasse123", PASSWORD_BCRYPT);
 $sql = "INSERT INTO users (username, password, email, solde, photo_profil, role) VALUES 
     ('alice', '$hashed_password', 'alice@example.com', 100.00, 'https://imgs.search.brave.com/hV7ggLrjUHFsJi4noN9y8Y-sXoBEH9ioch95Lq64ycQ/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9mci53/ZWIuaW1nMi5hY3N0/YS5uZXQvY18zMDBf/MzAwL3BpY3R1cmVz/LzE0LzA2LzIwLzEz/LzAyLzAwMTc3Ni5q/cGc', 'client')";
