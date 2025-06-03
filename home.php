@@ -27,10 +27,12 @@ $result = $conn->query($sql);
     <h1>Bienvenue sur notre boutique en ligne</h1>
     <p>Nous sommes le <?php echo date("d/m/Y"); ?></p>
 
-    <a href="connexion.php">Connexion</a> | 
-    <a href="register.php">Enregistrement</a>
     <?php if (isset($_SESSION['user_id'])): ?>
-        <a href="compte.php">Voir profil</a>
+        <a href="compte.php">Voir profil</a> | 
+        <a href="deconnexion.php">Déconnexion</a>
+    <?php else: ?>
+        <a href="connexion.php">Connexion</a> | 
+        <a href="register.php">Enregistrement</a>
     <?php endif; ?>
 
     <h2>Articles en vente :</h2>
