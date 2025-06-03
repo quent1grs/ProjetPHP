@@ -4,7 +4,7 @@ require 'db.php';
 
 // Vérification de la connexion
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: connexion.php");
     exit;
 }
 

@@ -2,12 +2,16 @@
 session_start();
 require 'db.php';
 
-// Vérifier que l'utilisateur est connecté et est admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: login.php'); // ou page d'erreur
+
+// Vérification du rôle de l'utilisateur
+$stmt = $pdo->prepare("SELECT role FROM Users WHERE id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+
+if (!$user || $user['role'] !== 'admin') {
+    echo "⛔ Accès refusé. Réservé aux administrateurs.";
     exit;
 }
-
 // Récupérer l'ID de l'utilisateur à modifier
 $userId = $_GET['id'] ?? null;
 if (!$userId) {
