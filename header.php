@@ -1,5 +1,4 @@
 <?php
-session_start();
 ?>
 
 <header style="background:#f0f0f0; padding:10px; display:flex; justify-content:space-between; align-items:center;">
