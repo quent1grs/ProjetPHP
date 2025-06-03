@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $conn->prepare("INSERT INTO invoice (user_id, date_transaction, montant, adresse_facturation, ville_facturation, code_postal) VALUES (?, CURDATE(), ?, 'Adresse', 'Ville', '00000')");
             $stmt->bind_param("id", $user_id, $total);
             $stmt->execute();
+            $invoice_id = $conn->insert_id;
 
             // Déduire le solde
             $stmt = $conn->prepare("UPDATE users SET solde = solde - ? WHERE id = ?");
@@ -67,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Vider le panier
             $conn->query("DELETE FROM cart WHERE user_id = $user_id");
 
-            $message = "Commande effectuée avec succès !";
+            $message = "Commande effectuée avec succès ! <a href='facture.php?id=$invoice_id' target='_blank'>Télécharger la facture</a>";
         } else {
             $message = "Solde insuffisant.";
         }
@@ -144,7 +145,7 @@ $conn->close();
             <p><strong>Votre solde : <?= number_format($solde, 2) ?> €</strong></p>
 
             <button type="submit" name="update">Mettre à jour le panier</button>
-            <button type="submit" name="commander">Passer commande</button>
+            <a href="validate.php" style="display:inline-block; padding:10px 15px; background:#4CAF50; color:white; text-decoration:none;">Passer commande</a>
         </form>
     <?php endif; ?>
 

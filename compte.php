@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isOwnAccount) {
     <h2>Vos factures</h2>
     <ul>
     <?php foreach ($invoices as $invoice): ?>
-        <li>Facture #<?= $invoice['id'] ?> - <?= $invoice['total_amount'] ?> € - <?= $invoice['date'] ?></li>
+        <li>Facture #<?= $invoice['id'] ?> - <?= number_format($invoice['montant'], 2) ?> € - <?= $invoice['date_transaction'] ?></li>
     <?php endforeach; ?>
     </ul>
 
